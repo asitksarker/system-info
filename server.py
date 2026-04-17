@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template_string
+import sqlite3
 
 app = Flask(__name__)
 
@@ -45,12 +46,25 @@ DASHBOARD_HTML = """
 </html>
 """
 
+def init_db():
+    conn = sqlite3.connect('fleet.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS reports
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                  machine_id TEXT, os TEXT, public_ip TEXT, 
+                  city TEXT, timestamp DATETIME)''')
+    conn.commit()
+    conn.close()
+
 @app.route('/report', methods=['POST'])
 def receive_report():
     data = request.json
-    machine_id = data.get("machine_id")
-    # Store/Update machine data
-    fleet_data[machine_id] = data
+    conn = sqlite3.connect('fleet.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO reports (machine_id, os, public_ip, city, timestamp) VALUES (?, ?, ?, ?, ?)",
+              (data['machine_id'], data['os'], data['public_ip'], data['city'], data['last_seen']))
+    conn.commit()
+    conn.close()
     return {"status": "success"}, 200
 
 @app.route('/')
