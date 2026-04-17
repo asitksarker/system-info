@@ -12,7 +12,7 @@ Hardware Identifiers: Automatically fetch MAC addresses and unique hardware UUID
 
 Geo-IP Mapping: Resolve public IPs to specific ISPs and physical cities.
 
-Real-time Status: A "Last Seen" timestamp based on last time the scrit was ran.
+Real-time Status: A "Last Seen" timestamp based on last time the script was ran.
 
-Flask Dashboard: A centralized tableS.
+Flask Dashboard: A centralized table to view all machines and their reports.
 
