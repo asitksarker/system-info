@@ -26,6 +26,7 @@ DASHBOARD_HTML = """
             <th>Machine ID</th>
             <th>OS Version</th>
             <th>Public IP</th>
+            <th>MAC</th>
             <th>Location</th>
             <th>Last Seen</th>
         </tr>
@@ -34,6 +35,7 @@ DASHBOARD_HTML = """
             <td>{{ id }}</td>
             <td>{{ info.os }}</td>
             <td>{{ info.public_ip }}</td>
+            <td>{{ info.mac }}</td>
             <td>{{ info.city }} ({{ info.isp }})</td>
             <td><span class="online">{{ info.last_seen }}</span></td>
         </tr>
