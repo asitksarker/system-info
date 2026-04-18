@@ -10,10 +10,10 @@ Real-time Dashboard: A Flask-based web interface showing the latest status of al
 
 Audit Persistence: Full historical telemetry stored in a permanent SQLite database for forensic investigation.
 
-Threat Detection: Agent-side scanning for "Red Team" tools and suspicious processes (e.g., Mimikatz, Netcat)
+Threat Detection: Agent-side scanning for tools and suspicious processes (e.g., Mimikatz, Netcat)
 
 Prerequisites:
-Before running SentryFleet, ensure you have Python 3.8+ installed.
+Python 3.8+ 
 
 1. Required Libraries
 flask: Powers the web dashboard and API.
@@ -30,6 +30,6 @@ Open config.py and provide your settings:
 DB_NAME = "fleet.db"
 
 Run python server.py
-Dashboard: Accessible at http://localhost:5000
+Dashboard: http://localhost:5000
 
 run python agent.py on machines to monitor
