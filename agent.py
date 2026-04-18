@@ -3,6 +3,7 @@ import uuid
 import requests
 from getmac import get_mac_address
 import time
+import psutil
 
 # Configuration: Replace with your Server's IP address
 SERVER_URL = "http://127.0.0.1:5000/report"
@@ -32,6 +33,18 @@ def send_report():
     except Exception as e:
         print(f"Failed to connect to server: {e}")
 
+def get_suspicious_processes():
+    # A list of tools often used by attackers after they get inside
+    blacklist = ['netcat', 'ncat', 'mimikatz', 'wireshark', 'powershell.exe']
+    found = []
+    
+    for proc in psutil.process_iter(['name']):
+        try:
+            if any(bad in proc.info['name'].lower() for bad in blacklist):
+                found.append(proc.info['name'])
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return found
+
 if __name__ == "__main__":
-    # In a real scenario, you'd put this in a loop or a cron job
     send_report()
