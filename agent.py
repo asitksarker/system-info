@@ -4,9 +4,12 @@ import requests
 from getmac import get_mac_address
 import time
 import psutil
+import os
+from dotenv import load_dotenv
 
-# Configuration: Replace with your Server's IP address
-SERVER_URL = "http://127.0.0.1:5000/report"
+load_dotenv()
+SERVER_IP = os.getenv("SERVER_IP", "127.0.0.1")
+SERVER_URL = f"http://{SERVER_IP}:5000/report"
 
 def collect_data():
     #scan processes
