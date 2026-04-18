@@ -45,7 +45,11 @@ def get_suspicious_processes():
     for proc in psutil.process_iter(['name']):
         try:
             if proc.info['name'].lower() in blacklist:
-                found.append(proc.info['name'])
+                found.append({
+                    "name": proc.info['name'],
+                    "pid": proc.info.get('pid'),
+                    "username": proc.info.get('username') or "N/A"
+                })
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
     return found
