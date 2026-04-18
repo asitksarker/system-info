@@ -24,18 +24,25 @@
                 <th>Last Seen</th>
             </tr>
         </thead>
-        <tbody>
-            {% for device in devices %}
-            <tr onclick="window.location='/history/{{ device.machine_id }}';">
-                <td>{{ device.machine_id }}</td>
-                <td>{{ device.os }}</td>
-                <td>{{ device.public_ip }}</td>
-                <td>{{ device.city }}</td>
-                <td>{% if device.threats %}<span class="threat-tag">THREAT</span>{% else %}✅ Clear{% endif %}</td>
-                <td>{{ device.timestamp }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+    <tbody>
+        {% for device in devices %}  <tr onclick="window.location='/history/{{ device.machine_id }}';">
+            <td>{{ device.machine_id }}</td>
+            <td>{{ device.os }}</td>
+            <td>{{ device.public_ip }}</td>
+            <td>{{ device.city }}</td>
+        
+            <td>
+                {# This IF statement MUST be inside the FOR loop #}
+                {% if device.threat_count > 0 %}
+                    <span class="threat-tag">⚠️ {{ device.threat_count }} THREATS</span>
+                {% else %}
+                    <span style="color: green;">✅ Clear</span>
+                {% endif %}
+            </td>
+        
+            <td>{{ device.timestamp }}</td>
+    </tr>
+    {% endfor %} </tbody>
     </table>
 </body>
 </html>

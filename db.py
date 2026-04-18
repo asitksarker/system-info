@@ -51,11 +51,13 @@ def save_report(data):
         conn.commit()
 
 def get_latest_reports():
-    """Fetches the most recent report for every unique machine."""
+    """Fetches the most recent report for every machine and checks for threats."""
     query = """
-    SELECT * FROM reports 
-    WHERE id IN (SELECT MAX(id) FROM reports GROUP BY machine_id)
-    ORDER BY timestamp DESC
+    SELECT r.*, 
+           (SELECT COUNT(*) FROM threats t WHERE t.report_id = r.id) AS threat_count
+    FROM reports r
+    WHERE r.id IN (SELECT MAX(id) FROM reports GROUP BY machine_id)
+    ORDER BY r.timestamp DESC
     """
     with get_db_connection() as conn:
         return conn.execute(query).fetchall()
