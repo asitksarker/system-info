@@ -10,41 +10,44 @@ def get_db_connection():
     return conn
 
 def init_db():
-    """Creates the necessary tables if they don't exist."""
     with get_db_connection() as conn:
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS reports (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                machine_id TEXT, 
-                os TEXT, 
-                public_ip TEXT, 
-                mac TEXT,
-                isp TEXT,
-                city TEXT, 
-                threats TEXT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
+        # 1. Reports Table (No threats column anymore)
+        conn.execute('''CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            machine_id TEXT, os TEXT, public_ip TEXT, mac TEXT, 
+            isp TEXT, city TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )''')
+        
+        # 2. Threats Table (Foreign Key to reports)
+        conn.execute('''CREATE TABLE IF NOT EXISTS threats (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            report_id INTEGER,
+            process_name TEXT,
+            pid INTEGER,
+            username TEXT,
+            FOREIGN KEY(report_id) REFERENCES reports(id)
+        )''')
         conn.commit()
 
 def save_report(data):
-    """Inserts a new telemetry report into the database."""
-    # Convert the list of threats into a single string for storage
-    threat_string = ", ".join(data.get('threats', []))
-    
     with get_db_connection() as conn:
-        conn.execute('''
-            INSERT INTO reports (machine_id, os, public_ip, mac, isp, city, threats) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            data.get('machine_id'), 
-            data.get('os'), 
-            data.get('public_ip'), 
-            data.get('mac'), 
-            data.get('isp'), 
-            data.get('city'), 
-            threat_string
-        ))
+        cursor = conn.cursor()
+        
+        # 1. Insert the main report
+        cursor.execute('''INSERT INTO reports (machine_id, os, public_ip, mac, isp, city) 
+                          VALUES (?, ?, ?, ?, ?, ?)''', 
+                       (data.get('machine_id'), data.get('os'), 
+                        data.get('public_ip'),data.get('mac'), data.get('isp'), data.get('city')))
+        
+        # 2. Get the ID of the report we just created
+        report_id = cursor.lastrowid
+        
+        # 3. Insert each threat into the threats table
+        threats = data.get('threats', [])
+        for t in threats:
+            cursor.execute('''INSERT INTO threats (report_id, process_name, pid, username) 
+                              VALUES (?, ?, ?, ?)''', 
+                           (report_id, t.get('name'), t.get('pid'), t.get('username')))
         conn.commit()
 
 def get_latest_reports():
@@ -58,7 +61,12 @@ def get_latest_reports():
         return conn.execute(query).fetchall()
 
 def get_history(machine_id):
-    """Fetches the full audit trail for a specific machine."""
-    query = "SELECT * FROM reports WHERE machine_id = ? ORDER BY timestamp DESC"
+    query = """
+    SELECT r.timestamp, r.public_ip, r.mac, r.city, t.process_name, t.pid, t.username
+    FROM reports r
+    LEFT JOIN threats t ON r.id = t.report_id
+    WHERE r.machine_id = ?
+    ORDER BY r.timestamp DESC
+    """
     with get_db_connection() as conn:
         return conn.execute(query, (machine_id,)).fetchall()
