@@ -14,7 +14,7 @@ def init_db():
         # 1. Reports Table (No threats column anymore)
         conn.execute('''CREATE TABLE IF NOT EXISTS reports (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            machine_id TEXT, os TEXT, public_ip TEXT, mac TEXT, 
+            machine_id TEXT, alias TEXT, os TEXT, public_ip TEXT, mac TEXT, 
             isp TEXT, city TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )''')
         
@@ -27,6 +27,12 @@ def init_db():
             username TEXT,
             FOREIGN KEY(report_id) REFERENCES reports(id)
         )''')
+        conn.commit()
+
+def rename_machine(machine_id, new_alias):
+    """Updates the alias for every report associated with this machine ID."""
+    with get_db_connection() as conn:
+        conn.execute("UPDATE reports SET alias = ? WHERE machine_id = ?", (new_alias, machine_id))
         conn.commit()
 
 def save_report(data):
@@ -64,7 +70,7 @@ def get_latest_reports():
 
 def get_history(machine_id):
     query = """
-    SELECT r.timestamp, r.public_ip, r.mac, r.city, t.process_name, t.pid, t.username
+    SELECT r.timestamp, r.public_ip, r.mac, r.city, r.alias, t.process_name, t.pid, t.username
     FROM reports r
     LEFT JOIN threats t ON r.id = t.report_id
     WHERE r.machine_id = ?

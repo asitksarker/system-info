@@ -29,7 +29,15 @@
 <body>
     <div class="container">
         <a href="/" class="back-link">← Back to Dashboard</a>
-        <h1>Audit History: {{ machine_id }}</h1>
+        <h1>
+            Audit History: 
+            {% if history and history[0].alias %}
+                {{ history[0].alias }} 
+                <small style="font-size: 0.5em; color: #7f8c8d;">({{ machine_id }})</small>
+            {% else %}
+                {{ machine_id }}
+            {% endif %}
+        </h1>
 
         <table>
             <thead>

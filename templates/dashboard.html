@@ -25,24 +25,71 @@
             </tr>
         </thead>
     <tbody>
-        {% for device in devices %}  <tr onclick="window.location='/history/{{ device.machine_id }}';">
-            <td>{{ device.machine_id }}</td>
+        {% for device in devices %}
+        <tr onclick="window.location='/history/{{ device.machine_id }}';">
+            <td class="id-cell">
+                <strong>{{ device.alias if device.alias else device.machine_id }}</strong>
+                
+                <span class="edit-icon" 
+                    title="Edit Name" 
+                    onclick="event.stopPropagation(); renameMachine('{{ device.machine_id }}')">
+                    ✎
+                </span>
+                
+                <br>
+                <small style="color: #999;">ID: {{ device.machine_id }}</small>
+            </td>
+
             <td>{{ device.os }}</td>
             <td>{{ device.public_ip }}</td>
             <td>{{ device.city }}</td>
-        
+
             <td>
-                {# This IF statement MUST be inside the FOR loop #}
                 {% if device.threat_count > 0 %}
                     <span class="threat-tag">⚠️ {{ device.threat_count }} THREATS</span>
                 {% else %}
                     <span style="color: green;">✅ Clear</span>
                 {% endif %}
             </td>
-        
+
             <td>{{ device.timestamp }}</td>
-    </tr>
-    {% endfor %} </tbody>
+        </tr>
+{% endfor %} </tbody>
     </table>
+    <script>
+        function renameMachine(id) {
+            const newName = prompt("Enter a name for this machine:");
+            if (newName) {
+                fetch('/rename', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ machine_id: id, new_alias: newName })
+                }).then(() => window.location.reload());
+            }
+        }
+</script>
 </body>
+
+<style> 
+    .edit-icon {
+        cursor: pointer;
+        margin-left: 8px;
+        font-size: 0.9em;
+        color: #3498db;
+        transition: color 0.2s;
+        display: inline-block;
+        padding: 2px 5px;
+    }
+
+    .edit-icon:hover {
+        color: #2980b9;
+        background: #e1f0fa;
+        border-radius: 4px;
+    }
+
+    /* Ensure the ID cell doesn't wrap awkwardly */
+    .id-cell {
+        white-space: nowrap;
+    }
+</style>
 </html>
