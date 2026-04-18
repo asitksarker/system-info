@@ -1,18 +1,35 @@
 # system-info
-Centralized Monitoring Dashboard
+Centralized Monitoring Dashboard:
 
 Python based  management system. It consists of a Server that hosts a web dashboard and agents that run on remote machines to report system information and geographic location.
 
 
-Features:
+Key Features:
 
-OS Tracking: Identify the operating system and build version of every machine.
+Real-time Dashboard: A Flask-based web interface showing the latest status of all connected assets.
 
-Hardware Identifiers: Automatically fetch MAC addresses and unique hardware UUIDs.
+Audit Persistence: Full historical telemetry stored in a permanent SQLite database for forensic investigation.
 
-Geo-IP Mapping: Resolve public IPs to specific ISPs and physical cities.
+Threat Detection: Agent-side scanning for "Red Team" tools and suspicious processes (e.g., Mimikatz, Netcat)
 
-Real-time Status: A "Last Seen" timestamp based on last time the script was ran.
+Prerequisites:
+Before running SentryFleet, ensure you have Python 3.8+ installed.
 
-Flask Dashboard: A centralized table to view all machines and their reports.
+1. Required Libraries
+flask: Powers the web dashboard and API.
 
+requests: Handles data transmission and Discord alerting.
+
+get-mac: Robust hardware identifier retrieval.
+
+psutil: Deep system and process monitoring.
+
+Setup & Configuration
+1. Configure Secrets
+Open config.py and provide your settings:
+DB_NAME = "fleet.db"
+
+Run python server.py
+Dashboard: Accessible at http://localhost:5000
+
+run python agent.py on machines to monitor
