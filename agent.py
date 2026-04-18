@@ -9,6 +9,9 @@ import psutil
 SERVER_URL = "http://127.0.0.1:5000/report"
 
 def collect_data():
+    #scan processes
+    threats = get_suspicious_processes()
+
     try:
         # Get location/network data
         net_data = requests.get("http://ip-api.com/json/", timeout=5).json()
@@ -22,7 +25,8 @@ def collect_data():
         "public_ip": net_data.get("query", "N/A"),
         "isp": net_data.get("isp", "N/A"),
         "city": net_data.get("city", "Unknown"),
-        "last_seen": time.ctime()
+        "last_seen": time.ctime(),
+        "threats": threats
     }
 
 def send_report():
@@ -40,7 +44,7 @@ def get_suspicious_processes():
     
     for proc in psutil.process_iter(['name']):
         try:
-            if any(bad in proc.info['name'].lower() for bad in blacklist):
+            if proc.info['name'].lower() in blacklist:
                 found.append(proc.info['name'])
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
@@ -48,3 +52,6 @@ def get_suspicious_processes():
 
 if __name__ == "__main__":
     send_report()
+   
+    
+    
