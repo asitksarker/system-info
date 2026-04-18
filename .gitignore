@@ -1,0 +1,16 @@
+# Python bytecode (compiled files)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables / Secrets (CRITICAL for Security)
+config.py
+.env
+
+# Database files (Usually ignored unless you want a default seed)
+*.db
+*.sqlite3
+
+# Local IDE settings
+.vscode/
+.idea/
