@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import db     
 
 app = Flask(__name__)
@@ -17,7 +17,7 @@ def view_history(machine_id):
     history = db.get_history(machine_id)
     
     # 2. Render templates/history.html
-    return render_template('history.html', machine_id=machine_id, history=history)
+    return render_template('history.html', machine_id=machine_id, history=history,)
 
 @app.route('/report', methods=['POST'])
 def receive_report():
@@ -27,6 +27,17 @@ def receive_report():
     db.save_report(data)
     
     return {"status": "success"}, 200
+
+@app.route('/rename', methods=['POST'])
+def rename_machine():
+    data = request.json
+    machine_id = data.get('machine_id')
+    new_alias = data.get('new_alias')
+    
+    if machine_id and new_alias:
+        db.rename_machine(machine_id, new_alias)
+        return jsonify({"status": "success"}), 200
+    return jsonify({"status": "error", "message": "Missing data"}), 400
 
 if __name__ == "__main__":
     db.init_db() # Ensure table exists
