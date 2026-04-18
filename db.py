@@ -39,11 +39,15 @@ def save_report(data):
     with get_db_connection() as conn:
         cursor = conn.cursor()
         
-        # 1. Insert the main report
-        cursor.execute('''INSERT INTO reports (machine_id, os, public_ip, mac, isp, city) 
-                          VALUES (?, ?, ?, ?, ?, ?)''', 
-                       (data.get('machine_id'), data.get('os'), 
-                        data.get('public_ip'),data.get('mac'), data.get('isp'), data.get('city')))
+        # Look up existing alias first
+        existing = conn.execute("SELECT alias FROM reports WHERE machine_id = ? AND alias IS NOT NULL LIMIT 1", 
+                                (data.get('machine_id'),)).fetchone()
+        current_alias = existing['alias'] if existing else None
+
+        cursor.execute('''INSERT INTO reports (machine_id, alias, os, public_ip, mac, isp, city) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?)''', 
+                       (data.get('machine_id'), current_alias, data.get('os'), 
+                        data.get('public_ip'), data.get('mac'), data.get('isp'), data.get('city')))
         
         # 2. Get the ID of the report we just created
         report_id = cursor.lastrowid
