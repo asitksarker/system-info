@@ -40,7 +40,7 @@ def save_report(data):
             data.get('machine_id'), 
             data.get('os'), 
             data.get('public_ip'), 
-              data.get('mac'), 
+            data.get('mac'), 
             data.get('isp'), 
             data.get('city'), 
             threat_string
